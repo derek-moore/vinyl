@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import print_function
+
 
 def test_example():
     import os
@@ -18,7 +21,7 @@ def test_example():
     with open(os.path.join(os.path.dirname(__file__), 'example.txt')) as f:
         reader = csv.reader(f)
         # copy a row of CSV data to the recordinstance
-        record._load(*reader.next())
+        record._load(*next(reader))
 
         # check the name was read correctly
         assert record.customer_name == 'a customer name with max length=50'
@@ -32,7 +35,7 @@ def test_example():
         # a static field
         assert record.start_time == '00:00:00'
 
-        print repr(record)
+        print(repr(record))
         # >>> TestRecord(customer_name=u'a customer name with max length=50',
         #                customer_number=u'0000000003', start_time=u'00:00:00')
 

@@ -33,20 +33,14 @@ class BaseField(object):
         self.created_order = BaseField.creation_counter
         self.max_length = max_length
         self.zfill = zfill
-        self.field_name = None   # filled in by RecordMetaclass
+        self.field_name = None  # filled in by RecordMetaclass
         self.required = required
         self.strip = strip
 
         self.value = self.to_record(value)
 
     def to_unicode(self, value):
-        if value is None:
-            return value
-        if isinstance(value, unicode):
-            return value
-        if isinstance(value, str):
-            return unicode(value, 'utf-8', errors='ignore')
-        return str(value)
+        return None if value is None else str(value)
 
     def to_record(self, value):
         """
@@ -60,11 +54,9 @@ class BaseField(object):
         raises ``ValidationException`` on error
         """
         return self.clean_record(value)
-    
-    
+
     def raise_invalid(self, message):
         raise ValidationError(self.field_name, message)
-
 
     def clean_record(self, value):
         value = self.to_unicode(value)
@@ -157,6 +149,7 @@ class DateField(BaseField):
     """
     Format datetime as a date string
     """
+
     def __init__(self, format='%Y-%m-%d', **kwargs):
         """
         ``pattern`` - strftime pattern
@@ -175,6 +168,7 @@ class TimeField(BaseField):
     """
     Format datetime as a time string
     """
+
     def __init__(self, format='%H:%M:%S', **kwargs):
         """
         ``pattern`` - strftime pattern

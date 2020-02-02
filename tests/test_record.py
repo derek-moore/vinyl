@@ -13,6 +13,7 @@ class LeadFormat(Record):
     error_code = VarCharField(value='error')
     comment_txt = VarCharField()
 
+
 class TestFormat(Record):
     one = RecordField(value='w00t')
     two = RecordField(max_length=10)
@@ -28,8 +29,10 @@ class TestFormat(Record):
 
     stripped = RecordField(strip=True)
 
+
 class TestFormatExtended(TestFormat):
     eleven = RecordField(value='New field!')
+
 
 def test_record():
     record = TestFormat()
@@ -42,10 +45,10 @@ def test_record():
     record.three = 1
     assert_equal(record.three, '00001')
 
-    record.four_date = datetime.fromtimestamp(1340336022L, tz=pytz.utc)
+    record.four_date = datetime.fromtimestamp(1340336022, tz=pytz.utc)
     assert_equal(record.four_date, u'2012-06-22')
 
-    record.four_hour = datetime.fromtimestamp(1340336022L, tz=pytz.utc)
+    record.four_hour = datetime.fromtimestamp(1340336022, tz=pytz.utc)
     assert_equal(record.four_hour, u'03:33:42')
 
     record.five = 5
@@ -80,6 +83,7 @@ def test_record():
 
     assert_equal([f for f in record], list(record), 'should support iteration')
 
+
 def test_subclass():
     record = TestFormat()
     new_record = TestFormatExtended()
@@ -106,6 +110,7 @@ def test_instance():
     b.one = 'b'
     assert_not_equal(a.one, b.one)
 
+
 def test_lead():
     record = LeadFormat(ERROR_CODE=None)
     assert_is_none(record.ERROR_CODE)
@@ -121,4 +126,4 @@ def test_lead():
     record = LeadFormat(comment_txt=u'\u0161')
     assert_equal(u'\u0161', record.comment_txt)
 
-    assert_equal(record._fields['comment_txt'].to_unicode(123L), '123')
+    assert_equal(record._fields['comment_txt'].to_unicode(123), '123')

@@ -15,7 +15,8 @@ class RecordMetaclass(type):
         fields = OrderedDict()
         fields.update(base_fields)
         unordered = [(name.lower(), value) for name, value in dct.items() if isinstance(value, BaseField)]
-        map(lambda x: fields.__setitem__(*x), sorted(unordered, key=lambda item: item[1].created_order))
+        for item in sorted(unordered, key=lambda x: x[1].created_order):
+            fields.__setitem__(*item)
 
         special = dict((name, value) for name, value in dct.items() if not isinstance(value, BaseField))
 
@@ -23,26 +24,26 @@ class RecordMetaclass(type):
         obj._fields = fields
 
         # set the field name on each field
-        map(lambda x: setattr(x[1], 'field_name', x[0]), fields.items())
+        for item in fields.items():
+            setattr(item[1], 'field_name', item[0])
 
         return obj
 
 
-class Record(object):
+class Record(object, metaclass=RecordMetaclass):
     """
     A mutable record type. Write classes describing the data declaratively,
     but have all the ease-of-use that namedtuple provides. Except that the keys
     are case-insensitive, and the type is mutable (useful for converting formats).
     """
 
-    __metaclass__ = RecordMetaclass
-
     def __init__(self, *args, **kw):
         super(Record, self).__init__()
 
         # make instance variables out of all the fields
         set_attr = super(Record, self).__setattr__
-        map(lambda x: set_attr(x.field_name, x.value), self._fields.values())
+        for item in list(self._fields.values()):
+            set_attr(item.field_name, item.value)
 
         self._load(*args, **kw)
 
@@ -70,17 +71,18 @@ class Record(object):
             self.__setattr__(k, v)
 
     def _validate(self):
-        map(lambda x: x.validate(), self._fields.values())
+        for item in list(self._fields.values()):
+            item.validate()
 
     def __len__(self):
         return len(self._fields)
 
     def __getitem__(self, index):
-        key = self._fields.keys()[index]
+        key = list(self._fields.keys())[index]
         return self.__getattr__(key)
 
     def __setitem__(self, index, value):
-        key = self._fields.keys()[index]
+        key = list(self._fields.keys())[index]
         return self.__setattr__(key, value)
 
     def __setattr__(self, key, value):
@@ -98,7 +100,7 @@ class Record(object):
     def __repr__(self):
         return '{0}({1})'.format(
             self.__class__.__name__,
-            ', '.join(map(lambda x: "{0}={1}".format(x, getattr(self, x)), self._fields.keys())),
+            ', '.join(["{0}={1}".format(x, getattr(self, x)) for x in list(self._fields.keys())]),
         )
 
     def __delattr__(self, name):
